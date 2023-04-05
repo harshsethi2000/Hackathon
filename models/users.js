@@ -20,8 +20,12 @@ const usersSchema = new mongoose.Schema({
     user_type: {
         type: String,
         required: true,
-        enum: [constants.recruiter]
+        enum: [constants.roles]
     },
+    first_name : String,
+    last_name : String,
+    stage_name : String, //in artist only
+    session_price : Number,
 }, {
     timestamps: true
 });

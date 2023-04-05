@@ -9,8 +9,11 @@ module.exports.userRegistrationValidation = async (data) => {
         username: Joi.string().regex(regex.usernameRegex).required(),
         password: Joi.string().regex(regex.passwordRegex).required(),
         confirm_password: Joi.string().regex(regex.passwordRegex).required(),
-        user_type: Joi.string().valid(constants.roles.recruiter).valid(constants.roles.applicant).required(),
-
+        user_type: Joi.string().valid(constants.roles.artist).valid(constants.roles.user).required(),
+        first_name : Joi.string().required(),
+        last_name : Joi.string().required(),
+        stage_name : Joi.string(),
+        session_price : Joi.number().required(),
     });
     return await userValidationSchema.validate(data);
 }

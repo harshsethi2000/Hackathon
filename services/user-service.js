@@ -48,7 +48,11 @@ module.exports.userRegistration = async (body) => {
         username: body.username,
         email_id: body.email_id,
         user_type: body.user_type,
-        password: hashedPassword
+        password: hashedPassword,
+        first_name : body.first_name,
+        last_name : body.last_name,
+        stage_name : body?.stage_name,
+        session_price : body?.session_price,
     }
     user = await userModel.create(userObject);
 

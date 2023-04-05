@@ -27,6 +27,17 @@
  *             type: string
  *          user_type :
  *             type: string
+ *          first_name:
+ *             type: string
+ *          last_name:
+ *             type: string
+ *          stage_name:
+ *             type: string
+ *          session_price:
+ *             type: number
+ *
+ *
+ *
  */
 
 /**

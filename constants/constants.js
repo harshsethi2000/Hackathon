@@ -1,7 +1,7 @@
 const constants = {
     roles: {
-        recruiter: 'Recruiter',
-        applicant: 'Applicant'
+        user: 'User',
+        artist: 'Artist'
     },
     statuscodes: {
         success: 200,
