@@ -196,6 +196,20 @@ const bookingController = () => {
         });
       }
     },
+    fetchAllArtist : async (req, res) => {
+      try {
+        let data = await bookingService.fetchAllArtistUtil();
+        return res.status(200).json({
+          message: "success",
+          data: data,
+        })
+      } catch (e) {
+        console.error(e);
+        return res.status(500).json({
+          message: "Something went wrong",
+        });
+      }
+    }
   };
   return bookController;
 };

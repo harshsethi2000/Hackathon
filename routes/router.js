@@ -44,4 +44,5 @@ router.post("/verify/payment", bookingController.verifyPayment);
 router.post("/fetch/fetch_transaction",bookingController.fetchTransaction );
 router.post("/event/fetch_event", eventController.fetchEvent);
 router.post("/event/create_event", eventController.createEvent);
+router.post("/fetch/fetch_artists", eventController.fetchAllArtist);
 module.exports = router;

@@ -332,6 +332,12 @@ const bookingService = () => {
         throw e;
       }
     },
+    fetchAllArtistUtil : async () => {
+      let artistData = await artistModel.find({}).lean().sort({_id:-1});
+      if(!artistData)
+        return [];
+      return artistData;
+    },
     getUserDataById: async (userId) => {
       console.log("USer Id " + userId);
       let artistData = await artistModel.findOne({ _id: userId }).lean();
