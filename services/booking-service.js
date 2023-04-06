@@ -52,6 +52,9 @@ const bookingService = () => {
           .lean()
           .exec();
 
+        if (!artist) {
+          throw "Artist not found";
+        }
         const book = await bookingModels
           .findOne({
             artist_id: artist_id,
@@ -101,18 +104,18 @@ const bookingService = () => {
       try {
         let book;
         if (status === "CANCELED") {
-          await transactionModel
-            .findOneAndUpdate(
-              { _id: book?.transaction_id },
-              { status: "refunded" },
-              { new: true }
-            )
-            .lean()
-            .exec();
           book = await bookingModels
             .findOneAndUpdate(
               { _id: bookId },
               { status: status, payment_status: "refunded" },
+              { new: true }
+            )
+            .lean()
+            .exec();
+          await transactionModel
+            .findOneAndUpdate(
+              { _id: book?.transaction_id },
+              { status: "refunded" },
               { new: true }
             )
             .lean()
@@ -126,10 +129,14 @@ const bookingService = () => {
             )
             .lean()
             .exec();
+          if (!book) {
+            throw "Book are not found or confirmed";
+          }
           const transaction = await transactionModel
             .findOne({ _id: book?.transaction_id })
             .lean()
             .exec();
+          console.log(transaction);
           await artistModel.findOneAndUpdate(
             { _id: book?.artist_id },
             {
@@ -329,14 +336,18 @@ const bookingService = () => {
           };
         else
           query = {
-            user_id : userId
-          }
-        let txnData = await transactionModel.find(query).lean().sort({start_time : -1});
-        if(!txnData)
-          return [];
-        for(let txn of txnData) {
+            user_id: userId,
+          };
+        let txnData = await transactionModel
+          .find(query)
+          .lean()
+          .sort({ start_time: -1 });
+        if (!txnData) return [];
+        for (let txn of txnData) {
           let booking_id = txn?.booking_id;
-          let bookingData = await bookingModels.findOne({_id: booking_id}).lean();
+          let bookingData = await bookingModels
+            .findOne({ _id: booking_id })
+            .lean();
           txn.booking_data = bookingData;
           let userData = await getUserDataById(userId);
           txn.user_data = userData;
@@ -346,10 +357,12 @@ const bookingService = () => {
         throw e;
       }
     },
-    fetchAllArtistUtil : async () => {
-      let artistData = await artistModel.find({user_type : "Artist"}).lean().sort({_id:-1});
-      if(!artistData)
-        return [];
+    fetchAllArtistUtil: async () => {
+      let artistData = await artistModel
+        .find({ user_type: "Artist" })
+        .lean()
+        .sort({ _id: -1 });
+      if (!artistData) return [];
       return artistData;
     },
     getUserDataById: async (userId) => {
@@ -365,6 +378,11 @@ const bookingService = () => {
           .exec();
         if (booking?.status !== "CONFIRMED") {
           return "Your booking is not confirmed";
+        }
+        let diff = booking?.start_time_epoch - new Date().getTime();
+        console.log(diff);
+        if (diff > 0 && Math.ceil((diff / 1000) * 60) > 1) {
+          return "You can't start before time";
         }
         const data = await startLiveStream(
           booking?.room_id,

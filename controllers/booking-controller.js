@@ -25,7 +25,7 @@ const bookingController = () => {
       } catch (err) {
         console.error(err);
         return res.status(500).json({
-          message: "Something went wrong",
+          message: "Something went wrong ",
         });
       }
     },
@@ -48,7 +48,7 @@ const bookingController = () => {
       } catch (err) {
         console.error(err);
         return res.status(500).json({
-          message: "Something went wrong",
+          message: err,
         });
       }
     },
@@ -207,7 +207,7 @@ const bookingController = () => {
           data: result,
         });
       } catch (err) {
-        console.error(e);
+        console.error(err);
         return res.status(500).json({
           message: "Something went wrong",
         });
