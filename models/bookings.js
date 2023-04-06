@@ -19,6 +19,8 @@ let booking = new mongoose.Schema(
     event_id: String,
     payment_status: String,
     booking_otp: { type: String, default: "123456" },
+    room_id: String,
+    room_code: String,
   },
   { timestamps: true }
 );

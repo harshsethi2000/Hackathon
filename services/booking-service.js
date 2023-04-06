@@ -2,6 +2,12 @@ const bookingModels = require("../models/bookings");
 const artistModel = require("../models/users");
 const transactionModel = require("../models/transactions");
 const nanoid = require("nanoid");
+const {
+  createCodes,
+  msCreateRooms,
+  startLiveStream,
+} = require("../services/ms100");
+
 async function getUserDataById(userId) {
   console.log("USer Id " + userId);
   let artistData = await artistModel.findOne({ _id: userId }).lean();
@@ -56,6 +62,12 @@ const bookingService = () => {
         if (book) {
           return "This slot is allready booked";
         }
+
+        const room = await msCreateRooms(
+          artist?.stage_name,
+          "This is for live dj"
+        );
+        const codes = await createCodes(room?.id);
         const end_time_epoch =
           start_time_epoch + artist?.session_duration * 60 * 1000;
         const booking = new bookingModels();
@@ -63,6 +75,8 @@ const bookingService = () => {
         booking.end_time_epoch = end_time_epoch;
         booking.user_id = user_id;
         booking.artist_id = artist_id;
+        booking.room_id = room?.id;
+        booking.room_code = codes?.data[0]?.code;
         booking.status = "BLOCKED";
         if (event_id) {
           booking.event_id = event_id;
@@ -331,6 +345,25 @@ const bookingService = () => {
       console.log("USer Id " + userId);
       let artistData = await artistModel.findOne({ _id: userId }).lean();
       return artistData;
+    },
+    startMeet: async (book_id) => {
+      try {
+        const booking = await bookingModels
+          .findOne({ _id: book_id })
+          .lean()
+          .exec();
+        if (booking?.status !== "CONFIRMED") {
+          return "Your booking is not confirmed";
+        }
+        const data = await startLiveStream(
+          booking?.room_id,
+          booking?.room_code
+        );
+        return data;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
     },
   };
   return service;

@@ -176,20 +176,37 @@ const bookingController = () => {
         console.log("REQ>USER " + JSON.stringify(req?.user));
         const user_id = req?.user?.id?.toString();
         let userData = await bookingService.getUserDataById(user_id);
-        if(!userData) {
+        if (!userData) {
           console.log("No User data found for user_id " + user_id);
           throw new Error("No User data found for user_id " + user_id);
         }
         let isArtist = false;
         console.log("userData?.user_type " + userData?.user_type);
-        if(userData?.user_type === "Artist")
-          isArtist = true;
-        let data = await bookingService.getTransactionsByUserId(user_id, isArtist);
+        if (userData?.user_type === "Artist") isArtist = true;
+        let data = await bookingService.getTransactionsByUserId(
+          user_id,
+          isArtist
+        );
         return res.status(200).json({
           message: "success",
           data: data,
-        })
+        });
       } catch (e) {
+        console.error(e);
+        return res.status(500).json({
+          message: "Something went wrong",
+        });
+      }
+    },
+    startMeet: async (req, res) => {
+      try {
+        const { book_id } = req?.body;
+        const result = await bookingService.startMeet(book_id);
+        return res.status(200).json({
+          message: "success",
+          data: result,
+        });
+      } catch (err) {
         console.error(e);
         return res.status(500).json({
           message: "Something went wrong",
