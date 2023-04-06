@@ -51,7 +51,7 @@ const eventController = () => {
         fetchEvent : async (req, res) => {
             try {
                 const user_id = req?.user?._id?.toString();
-                const { artist_id } = req?.body;
+                const  artist_id  = user_id;
                 let data = await getFutureEventForArtist(artist_id);
                 return res.status(200).json({
                     message: "success",

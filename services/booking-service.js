@@ -315,13 +315,18 @@ const bookingService = () => {
           };
         else
           query = {
-            user_id: userId,
-          };
-        let txnData = await transactionModel
-          .find(query)
-          .lean()
-          .sort({ _id: -1 });
-        if (!txnData) return [];
+            user_id : userId
+          }
+        let txnData = await transactionModel.find(query).lean().sort({start_time : -1});
+        if(!txnData)
+          return [];
+        for(let txn of txnData) {
+          let booking_id = txn?.booking_id;
+          let bookingData = bookingModels.findOne({_id: booking_id}).lean();
+          txn.booking_data = bookingData;
+          let userData = getUserDataById(userId);
+          txn.user_data = userData;
+        }
         return txnData;
       } catch (e) {
         throw e;
