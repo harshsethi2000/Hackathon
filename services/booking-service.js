@@ -52,7 +52,10 @@ const bookingService = () => {
         const book = await bookingModels
           .findOne({
             artist_id: artist_id,
-            start_time_epoch: start_time_epoch,
+            start_time_epoch: {
+              $gte: start_time_epoch,
+              $lte: start_time_epoch + artist?.session_duration * 60 * 1000,
+            },
           })
           .lean()
           .exec();
@@ -375,12 +378,17 @@ const bookingService = () => {
         }
         let diff = booking?.start_time_epoch - new Date().getTime();
         console.log(diff);
-        if (diff > 0 && Math.ceil((diff / 1000) * 60) > 1) {
-          return "You can't start before time";
-        }
+        // if (diff > 0 && Math.ceil((diff / 1000) * 60) > 1) {
+        //   return "You can't start before time";
+        // }
         const data = await startLiveStream(
           booking?.room_id,
           booking?.room_code
+        );
+        await bookingModels.findOneAndUpdate(
+          { _id: book_id },
+          { meet_id: data?.meeting_url },
+          { new: true }
         );
         return data;
       } catch (err) {
