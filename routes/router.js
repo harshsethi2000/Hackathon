@@ -45,4 +45,5 @@ router.post("/fetch/fetch_transaction", bookingController.fetchTransaction);
 router.post("/event/fetch_event", eventController.fetchEvent);
 router.post("/event/create_event", eventController.createEvent);
 router.post("/start/meet", bookingController.startMeet);
+router.post("/fetch/fetch_artists", bookingController.fetchAllArtist);
 module.exports = router;

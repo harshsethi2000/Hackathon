@@ -5,6 +5,7 @@ let  eventObj= [
 ];
 let event = new mongoose.Schema(
     {
+        event_name : String,
         event_type : { type: String, enum: eventObj },
         artist_id : String,
         start_time : Number,
