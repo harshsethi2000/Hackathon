@@ -11,7 +11,6 @@
  *        - bearerAuth: []
  */
 
-
 /**
  * @swagger
  * definitions:
@@ -35,7 +34,8 @@
  *             type: string
  *          session_price:
  *             type: number
- *
+ *          session_duration:
+ *             type: number
  *
  *
  */
@@ -65,7 +65,6 @@
  *              schema:
  *                type: object
  */
-
 
 /**
  * @swagger
@@ -103,8 +102,6 @@
  *              schema:
  *                type: object
  */
-
-
 
 /**
  * @swagger
