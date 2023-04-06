@@ -322,9 +322,9 @@ const bookingService = () => {
           return [];
         for(let txn of txnData) {
           let booking_id = txn?.booking_id;
-          let bookingData = bookingModels.findOne({_id: booking_id}).lean();
+          let bookingData = await bookingModels.findOne({_id: booking_id}).lean();
           txn.booking_data = bookingData;
-          let userData = getUserDataById(userId);
+          let userData = await getUserDataById(userId);
           txn.user_data = userData;
         }
         return txnData;
@@ -333,7 +333,7 @@ const bookingService = () => {
       }
     },
     fetchAllArtistUtil : async () => {
-      let artistData = await artistModel.find({}).lean().sort({_id:-1});
+      let artistData = await artistModel.find({user_type : "Artist"}).lean().sort({_id:-1});
       if(!artistData)
         return [];
       return artistData;
