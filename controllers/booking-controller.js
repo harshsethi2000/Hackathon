@@ -5,8 +5,8 @@ const bookingController = () => {
     createBooking: async (req, res) => {
       try {
         const user_id = req?.user?.id?.toString();
-        const { start_time, artist_id, event_id, amount } = req.body;
-        if (!start_time || !user_id || !artist_id || !amount) {
+        const { start_time, artist_id, event_id } = req.body;
+        if (!start_time || !user_id || !artist_id) {
           return res.status(500).json({
             message: "Please pass valid parameters",
           });
@@ -15,8 +15,7 @@ const bookingController = () => {
           start_time,
           user_id,
           artist_id,
-          event_id ?? null,
-          amount
+          event_id ?? null
         );
         return res.status(200).json({
           message: "success",

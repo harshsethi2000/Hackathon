@@ -39,13 +39,7 @@ const bookingService = () => {
     }
   };
   const service = {
-    createBook: async (
-      start_time_epoch,
-      user_id,
-      artist_id,
-      event_id,
-      amount
-    ) => {
+    createBook: async (start_time_epoch, user_id, artist_id, event_id) => {
       try {
         const artist = await artistModel
           .findOne({ _id: artist_id })
@@ -85,7 +79,7 @@ const bookingService = () => {
           booking.event_id = event_id;
         }
         const transactionBody = {
-          amount: amount,
+          amount: artist?.session_price,
           artist_id: artist_id,
           user_id: user_id,
           event_id: event_id,
