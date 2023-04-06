@@ -42,6 +42,6 @@ router.post("/dates", bookingController.getdatesForBookings);
 router.post("/verify/payment", bookingController.verifyPayment);
 //router.post('/apply', restrictTo(constants.roles.applicant), jobController.applyJob)
 router.post("/fetch/fetch_transaction",bookingController.fetchTransaction );
-router.post("event/fetch_event", eventController.fetchEvent);
-router.post("event/create_event", eventController.createEvent);
+router.post("/event/fetch_event", eventController.fetchEvent);
+router.post("/event/create_event", eventController.createEvent);
 module.exports = router;

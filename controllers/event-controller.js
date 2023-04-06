@@ -9,14 +9,15 @@ const eventController = () => {
         event.end_time = body?.end_time;
         event.duration = body?.duration;
         event.fees = body?.fees;
+        event.event_name = body?.event_name;
         const response = await event.save();
         return response;
     }
     async function getFutureEventForArtist(artist_id) {
         let currentTime = Date.now();
         let eventData = Event.find({
-            start_time : {$gt : currentTime}
-        }).lean();
+            artist_id : artist_id,
+        }).lean().sort({_id:-1});
         if(!eventData || eventData?.length === 0)
             return [];
         return eventData;
@@ -25,7 +26,7 @@ const eventController = () => {
         createEvent: async (req, res) => {
             try {
                 const artist_id = req?.user?._id?.toString();
-                const { event_type, start_time, end_time, fees, duration } = req.body;
+                const { event_type, start_time, end_time, fees, duration, event_name} = req.body;
 
                 if (!event_type || !start_time || !end_time || !fees || !duration) {
                     return res.status(500).json({
