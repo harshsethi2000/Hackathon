@@ -11,7 +11,7 @@ router.get("/", (req, res) => {
 });
 router.post("/registration", userController.registration);
 router.post("/login", userController.login);
-
+router.post("/fetch/fetch_artists", bookingController.fetchAllArtist);
 router.use(authController.authorizeToken); //
 
 router.get("/user-profile", userController.getUserProfile);
@@ -45,5 +45,4 @@ router.post("/fetch/fetch_transaction", bookingController.fetchTransaction);
 router.post("/event/fetch_event", eventController.fetchEvent);
 router.post("/event/create_event", eventController.createEvent);
 router.post("/start/meet", bookingController.startMeet);
-router.post("/fetch/fetch_artists", bookingController.fetchAllArtist);
 module.exports = router;
