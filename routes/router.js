@@ -5,7 +5,7 @@ const constants = require("../constants/constants");
 const authController = require("../controllers/AuthController");
 const jobController = require("../controllers/job-controllers");
 const bookingController = require("../controllers/booking-controller")();
-
+const eventController = require("../controllers/event-controller")();
 router.get("/", (req, res) => {
   res.send("{message:'Welcome to my site'}");
 });
@@ -41,5 +41,7 @@ router.get("/user/completed_books", bookingController.getCompletedBooksOfUser);
 router.post("/dates", bookingController.getdatesForBookings);
 router.post("/verify/payment", bookingController.verifyPayment);
 //router.post('/apply', restrictTo(constants.roles.applicant), jobController.applyJob)
-
+router.post("/fetch/fetch_transaction",bookingController.fetchTransaction );
+router.post("event/fetch_event", eventController.fetchEvent);
+router.post("event/create_event", eventController.createEvent);
 module.exports = router;

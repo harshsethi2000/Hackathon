@@ -16,8 +16,7 @@ module.exports.userRegistrationValidation = async (data) => {
     first_name: Joi.string().required(),
     last_name: Joi.string().required(),
     stage_name: Joi.string(),
-    session_price: Joi.number().required(),
-    session_duration: Joi.number().required(),
+
   });
   return await userValidationSchema.validate(data);
 };

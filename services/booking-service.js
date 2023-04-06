@@ -2,7 +2,11 @@ const bookingModels = require("../models/bookings");
 const artistModel = require("../models/users");
 const transactionModel = require("../models/transactions");
 const nanoid = require("nanoid");
-
+async function getUserDataById(userId){
+  console.log("USer Id " + userId);
+  let artistData = await artistModel.findOne({_id : userId}).lean();
+  return artistData;
+}
 const bookingService = () => {
   const createTransaction = async (reqBody) => {
     try {
@@ -159,6 +163,13 @@ const bookingService = () => {
           .sort({ start_time_epoch: -1 })
           .lean()
           .exec();
+        for(let booking of bookings) {
+          let userId = booking?.user_id;
+          let userData = await getUserDataById(userId);
+          if(!userData)
+            continue;
+          booking.user_data = userData;
+        }
         return bookings;
       } catch (err) {
         console.error(err);
@@ -176,6 +187,11 @@ const bookingService = () => {
           .sort({ start_time_epoch: -1 })
           .lean()
           .exec();
+        for(let booking of bookings) {
+          let artist_id = booking?.artist_id;
+          let artistData = await getUserDataById(artist_id);
+          booking.artist_data = artistData;
+        }
         return bookings;
       } catch (err) {
         console.error(err);
@@ -291,6 +307,30 @@ const bookingService = () => {
         throw err;
       }
     },
+    getTransactionsByUserId : async (userId, isArtist) => {
+      try {
+        let query;
+        if(isArtist)
+          query = {
+            artist_id : userId,
+          }
+        else
+          query = {
+            user_id : userId
+          }
+        let txnData = await transactionModel.find(query).lean().sort({start_time : -1});
+        if(!txnData)
+          return [];
+        return txnData;
+      } catch (e) {
+        throw e;
+      }
+    },
+    getUserDataById: async (userId) => {
+      console.log("USer Id " + userId);
+      let artistData = await artistModel.findOne({_id : userId}).lean();
+      return artistData;
+    }
   };
   return service;
 };
