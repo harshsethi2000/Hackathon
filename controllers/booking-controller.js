@@ -4,8 +4,9 @@ const bookingController = () => {
   const bookController = {
     createBooking: async (req, res) => {
       try {
-        const { start_time, user_id, artist_id } = req.body;
-        if (!start_time || !user_id || !artist_id) {
+        const user_id = req?.user?.id?.toString();
+        const { start_time, artist_id, event_id, amount } = req.body;
+        if (!start_time || !user_id || !artist_id || !amount) {
           return res.status(500).json({
             message: "Please pass valid parameters",
           });
@@ -13,7 +14,9 @@ const bookingController = () => {
         const result = await bookingService.createBook(
           start_time,
           user_id,
-          artist_id
+          artist_id,
+          event_id ?? null,
+          amount
         );
         return res.status(200).json({
           message: "success",
@@ -51,7 +54,7 @@ const bookingController = () => {
     },
     getBooksForArtistAcceptance: async (req, res) => {
       try {
-        const artist_id = req?.user?._id?.toString();
+        const artist_id = req?.user?.id?.toString();
         const result = await bookingService.getbookingsForAcceptanceOrRejection(
           artist_id
         );
@@ -68,7 +71,7 @@ const bookingController = () => {
     },
     getUpcomingBooksForArtist: async (req, res) => {
       try {
-        const artist_id = req?.user?._id?.toString();
+        const artist_id = req?.user?.id?.toString();
         const result = await bookingService.getUpcomingBooksOfArtist(artist_id);
         return res.status(200).json({
           message: "success",
@@ -83,7 +86,7 @@ const bookingController = () => {
     },
     getUpcomingBooksForUser: async (req, res) => {
       try {
-        const user_id = req?.user?._id?.toString();
+        const user_id = req?.user?.id?.toString();
         const result = await bookingService.getUpcomingBooksOfUser(user_id);
         return res.status(200).json({
           message: "success",
@@ -98,7 +101,7 @@ const bookingController = () => {
     },
     getCompletedBooksForArtist: async (req, res) => {
       try {
-        const artist_id = req?.user?._id?.toString();
+        const artist_id = req?.user?.id?.toString();
         const result = await bookingService.getCompletedBooksOfArtist(
           artist_id
         );
@@ -115,7 +118,7 @@ const bookingController = () => {
     },
     getCompletedBooksOfUser: async (req, res) => {
       try {
-        const user_id = req?.user?._id?.toString();
+        const user_id = req?.user?.id?.toString();
         const result = await bookingService.getCompletedBooksOfUser(user_id);
         return res.status(200).json({
           message: "success",
@@ -130,8 +133,33 @@ const bookingController = () => {
     },
     getdatesForBookings: async (req, res) => {
       try {
-        const artist_id = req?.user?._id?.toString();
-        const result = await bookingService.getDatesForBooking(artist_id);
+        const artist_id = req?.user?.id?.toString();
+        const { start_time, end_time } = req?.body;
+        if (!start_time || !end_time) {
+          return res.status(500).json({
+            message: "Please pass valid parameters",
+          });
+        }
+        const result = await bookingService.getDatesForBooking(
+          artist_id,
+          start_time,
+          end_time
+        );
+        return res.status(200).json({
+          message: "success",
+          data: result,
+        });
+      } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+          message: "Something went wrong",
+        });
+      }
+    },
+    verifyPayment: async (req, res) => {
+      try {
+        const { booking_id } = req?.body;
+        const result = await bookingService.verifyPayment(booking_id);
         return res.status(200).json({
           message: "success",
           data: result,

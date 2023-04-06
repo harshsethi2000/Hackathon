@@ -38,7 +38,8 @@ router.get(
   bookingController.getCompletedBooksForArtist
 );
 router.get("/user/completed_books", bookingController.getCompletedBooksOfUser);
-router.get("/dates", bookingController.getdatesForBookings);
+router.post("/dates", bookingController.getdatesForBookings);
+router.post("/verify/payment", bookingController.verifyPayment);
 //router.post('/apply', restrictTo(constants.roles.applicant), jobController.applyJob)
 
 module.exports = router;

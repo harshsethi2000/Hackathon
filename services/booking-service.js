@@ -1,36 +1,128 @@
 const bookingModels = require("../models/bookings");
 const artistModel = require("../models/users");
+const transactionModel = require("../models/transactions");
+const nanoid = require("nanoid");
 
 const bookingService = () => {
+  const createTransaction = async (reqBody) => {
+    try {
+      const { amount, artist_id, user_id, booking_id, event_id } = reqBody;
+      const transaction = new transactionModel();
+      transaction.amount = amount;
+      transaction.artist_id = artist_id;
+      transaction.user_id = user_id;
+      transaction.booking_id = booking_id;
+      if (event_id) {
+        transaction.event_id = event_id;
+      }
+      transaction.status = "initiated";
+      transaction.currency = "INR";
+      transaction.order_id = nanoid.customAlphabet(
+        "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWZYZ",
+        20
+      )();
+      const response = await transaction.save();
+      return response;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
   const service = {
-    createBook: async (start_time_epoch, user_id, artist_id) => {
+    createBook: async (
+      start_time_epoch,
+      user_id,
+      artist_id,
+      event_id,
+      amount
+    ) => {
       try {
         const artist = await artistModel
           .findOne({ _id: artist_id })
           .lean()
           .exec();
+
+        const book = await bookingModels
+          .findOne({
+            artist_id: artist_id,
+            start_time_epoch: start_time_epoch,
+          })
+          .lean()
+          .exec();
+        if (book) {
+          return "This slot is allready booked";
+        }
         const end_time_epoch =
           start_time_epoch + artist?.session_duration * 60 * 1000;
         const booking = new bookingModels();
         booking.start_time_epoch = start_time_epoch;
-        booking.end_time = end_time_epoch;
+        booking.end_time_epoch = end_time_epoch;
         booking.user_id = user_id;
         booking.artist_id = artist_id;
         booking.status = "BLOCKED";
-
+        if (event_id) {
+          booking.event_id = event_id;
+        }
+        const transactionBody = {
+          amount: amount,
+          artist_id: artist_id,
+          user_id: user_id,
+          event_id: event_id,
+        };
+        const transaction = await createTransaction(transactionBody);
+        booking.transaction_id = transaction?._id?.toString();
         const response = await booking.save();
-        return response;
+
+        return { response, transaction };
       } catch (err) {
-        console.error(e);
-        throw e;
+        console.error(err);
+        throw err;
       }
     },
     acceptOrRejectBooking: async (bookId, status) => {
       try {
-        const book = await bookingModels
-          .findOneAndUpdate({ _id: bookId }, { status: status })
-          .lean()
-          .exec();
+        let book;
+        if (status === "CANCELED") {
+          await transactionModel
+            .findOneAndUpdate(
+              { _id: book?.transaction_id },
+              { status: "refunded" },
+              { new: true }
+            )
+            .lean()
+            .exec();
+          book = await bookingModels
+            .findOneAndUpdate(
+              { _id: bookId },
+              { status: status, payment_status: "refunded" },
+              { new: true }
+            )
+            .lean()
+            .exec();
+        } else {
+          book = await bookingModels
+            .findOneAndUpdate(
+              { _id: bookId, status: "BLOCKED" },
+              { status: status },
+              { new: true }
+            )
+            .lean()
+            .exec();
+          const transaction = await transactionModel
+            .findOne({ _id: book?.transaction_id })
+            .lean()
+            .exec();
+          await artistModel.findOneAndUpdate(
+            { _id: book?.artist_id },
+            {
+              $inc: {
+                booking_count: 1,
+                "earnings.daily_booking": transaction?.amount,
+                "earnings.total": transaction?.amount,
+              },
+            }
+          );
+        }
         return book;
       } catch (err) {
         console.error(err);
@@ -39,11 +131,13 @@ const bookingService = () => {
     },
     getbookingsForAcceptanceOrRejection: async (artist_id) => {
       try {
+        console.log(artist_id);
         const bookings = await bookingModels
           .find({
             artist_id: artist_id,
             start_time_epoch: { $gt: new Date().getTime() + 24 * 3600 * 1000 },
             status: "BLOCKED",
+            payment_status: "success",
           })
           .sort({ start_time_epoch: -1 })
           .lean()
@@ -125,13 +219,14 @@ const bookingService = () => {
     getDatesForBooking: async (artist_id, start_date, end_date) => {
       try {
         const artist = await artistModel
-          .findOne({ artist_id: artist_id })
+          .findOne({ _id: artist_id })
           .lean()
           .exec();
         const duration = artist?.session_duration;
         const noOfSlots = Math.ceil(
-          (start_date - end_date) / (duration * 60 * 1000)
+          (end_date - start_date) / (duration * 60 * 1000)
         );
+        console.log(noOfSlots);
         let dates = [];
         let nextStart = start_date;
         dates.push(nextStart);
@@ -151,8 +246,46 @@ const bookingService = () => {
         for (let i = 0; i < bookinsDoneForArtist.length; i++) {
           toRemove.push(bookinsDoneForArtist[i].start_time_epoch);
         }
+        console.log(toRemove);
         dates = dates.filter((entry) => !toRemove.includes(entry));
         return dates;
+      } catch (err) {
+        console.error(err);
+        throw err;
+      }
+    },
+    verifyPayment: async (booking_id) => {
+      try {
+        const booking = await bookingModels.findOne({ _id: booking_id });
+        const transaction = transactionModel
+          .findOneAndUpdate(
+            { _id: booking?.transaction_id },
+            { status: "success", booking_id: booking_id },
+            { new: true }
+          )
+          .lean()
+          .exec();
+        const updateBook = await bookingModels
+          .findOneAndUpdate(
+            { _id: booking_id },
+            { payment_status: "success" },
+            { new: true }
+          )
+          .lean()
+          .exec();
+        if (updateBook?.event_id) {
+          await artistModel.findOneAndUpdate(
+            { _id: updateBook?.artist_id },
+            {
+              $inc: {
+                booking_count: 1,
+                "earnings.events": transaction?.amount,
+                "earnings.total": transaction?.amount,
+              },
+            }
+          );
+        }
+        return transaction;
       } catch (err) {
         console.error(err);
         throw err;

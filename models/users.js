@@ -28,6 +28,12 @@ const usersSchema = new mongoose.Schema(
     stage_name: String, //in artist only
     session_price: Number,
     session_duration: Number, // in mins only
+    earnings: {
+      events: Number,
+      daily_booking: Number,
+      total: Number,
+    },
+    booking_count: { type: Number, default: 0 },
   },
   {
     timestamps: true,
