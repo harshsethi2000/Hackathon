@@ -1,6 +1,7 @@
 const axios = require("axios");
 
 async function msCreateRooms(name, description) {
+  name = "harsh";
   let data = JSON.stringify({
     name: name,
     description: description,
@@ -25,8 +26,8 @@ async function msCreateRooms(name, description) {
     const response = await axios(config);
     return response?.data;
   } catch (err) {
-    //console.error(err);
-    throw err;
+    console.error(JSON.stringify(err));
+    //throw err;
   }
 }
 
