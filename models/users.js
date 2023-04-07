@@ -4,8 +4,8 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const usersSchema = new mongoose.Schema(
   {
-    youtube_link : String,
-    cover_pic : String,
+    youtube_link : {type : String, default : "https://www.youtube.com/watch?v=qAQYE2_IRnw"},
+    cover_pic : {type : String, default : "https://i.ytimg.com/vi/oZ62kGkkwrM/mqdefault.jpg"},
     username: {
       type: String,
       required: true,
