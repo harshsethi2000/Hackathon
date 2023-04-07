@@ -64,7 +64,7 @@ const bookingService = () => {
         }
 
         const room = await msCreateRooms(
-          artist?.stage_name,
+          artist?.first_name,
           "This is for live dj"
         );
         const codes = await createCodes(room?.id);
@@ -92,9 +92,17 @@ const bookingService = () => {
         booking.transaction_id = transaction?._id?.toString();
         const response = await booking.save();
 
-        return { response, transaction };
+        const updateTrans = await service.verifyPayment(
+          response?._id?.toString()
+        );
+        const updateBook = await service.acceptOrRejectBooking(
+          response?._id?.toString(),
+          "CONFIRMED"
+        );
+
+        return { updateBook, updateTrans };
       } catch (err) {
-        console.error(err);
+        //console.error(err);
         throw err;
       }
     },

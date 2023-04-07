@@ -20,11 +20,12 @@ async function msCreateRooms(name, description) {
     data: data,
   };
 
+  console.log(config);
   try {
     const response = await axios(config);
     return response?.data;
   } catch (err) {
-    console.error(err);
+    //console.error(err);
     throw err;
   }
 }
