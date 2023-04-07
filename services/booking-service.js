@@ -184,7 +184,7 @@ const bookingService = () => {
         const bookings = await bookingModels
           .find({
             artist_id: artist_id,
-            start_time_epoch: { $gt: new Date().getTime() + 24 * 3600 * 1000 },
+            start_time_epoch: { $gt: new Date().getTime() },
             status: "CONFIRMED",
           })
           .sort({ start_time_epoch: -1 })
@@ -207,7 +207,7 @@ const bookingService = () => {
         const bookings = await bookingModels
           .find({
             user_id: user_id,
-            start_time_epoch: { $gt: new Date().getTime() + 24 * 3600 * 1000 },
+            start_time_epoch: { $gt: new Date().getTime() },
             status: "CONFIRMED",
           })
           .sort({ start_time_epoch: -1 })
