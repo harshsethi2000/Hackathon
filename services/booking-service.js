@@ -62,9 +62,9 @@ const bookingService = () => {
         if (book) {
           return "This slot is allready booked";
         }
-
+        console.log("Gere");
         const room = await msCreateRooms(
-          artist?.stage_name,
+          artist?.first_name?.trim() ?? "user",
           "This is for live dj"
         );
         const codes = await createCodes(room?.id);
