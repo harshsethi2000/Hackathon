@@ -1,4 +1,5 @@
 let mongoose = require("mongoose");
+const nanoid = require("nanoid");
 let status = [
   "AVAILABLE",
   "CONFIRMED",
@@ -18,7 +19,10 @@ let booking = new mongoose.Schema(
     meet_id: String,
     event_id: String,
     payment_status: String,
-    booking_otp: { type: String, default: "123456" },
+    booking_otp: {
+      type: String,
+      default: nanoid.customAlphabet("1234567890", 6)(),
+    },
     room_id: String,
     room_code: String,
   },
