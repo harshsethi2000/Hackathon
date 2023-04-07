@@ -42,7 +42,11 @@ module.exports.userRegistration = async (body) => {
   //const salt=await bcrypt.genSalt();  //default arg is 10
 
   const hashedPassword = await bcrypt.hash(body.password, 10);
-
+  function randomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  let rating = randomInteger(3, 5);
+  let view_count = randomInteger(10000,500000);
   var userObject = {
     username: body.username,
     email_id: body.email_id,
@@ -53,6 +57,8 @@ module.exports.userRegistration = async (body) => {
     stage_name: body?.stage_name,
     session_price: body?.session_price,
     session_duration: body?.session_duration,
+    rating : rating,
+    view_count : view_count,
   };
   user = await userModel.create(userObject);
 

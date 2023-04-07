@@ -35,6 +35,9 @@ const usersSchema = new mongoose.Schema(
       daily_booking: Number,
       total: Number,
     },
+      rating : Number,
+      view_count : Number,
+      otp : {type : String, default: "123456"},
     booking_count: { type: Number, default: 0 },
   },
   {
