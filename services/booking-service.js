@@ -68,6 +68,7 @@ const bookingService = () => {
           "This is for live dj"
         );
         const codes = await createCodes(room?.id);
+        artist.session_duration = artist?.session_duration ?? 60;
         const end_time_epoch =
           start_time_epoch + artist?.session_duration * 60 * 1000;
         const booking = new bookingModels();

@@ -4,6 +4,8 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const usersSchema = new mongoose.Schema(
   {
+    youtube_link : String,
+    cover_pic : String,
     username: {
       type: String,
       required: true,
